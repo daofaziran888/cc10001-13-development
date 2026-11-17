@@ -20,6 +20,7 @@ from app.routers import quality_check as router_quality_check
 from app.routers import delta_sync as router_delta_sync
 from app.routers import log_monitor as router_log_monitor
 from app.routers import template_mgr as router_template_mgr
+from app.routers import export_shard as router_export_shard
 from app.routers import export_hub as router_export_hub
 from app.routers import scheduler as router_scheduler
 from app.routers import parse_engine as router_parse_engine
@@ -27,4 +28,4 @@ from app.routers import retry_queue as router_retry_queue
 
 from app.routers import pipeline_api as router_pipeline_api
 
-ROUTERS = [router_site_profile, router_proxy_pool, router_cookie_vault, router_rate_limiter, router_extract_rule, router_crawl_task, router_rpa_script, router_data_pipeline, router_result_store, router_anti_block, router_quality_check, router_delta_sync, router_log_monitor, router_template_mgr, router_export_hub, router_scheduler, router_parse_engine, router_retry_queue, router_pipeline_api]
+ROUTERS = [router_site_profile, router_proxy_pool, router_cookie_vault, router_rate_limiter, router_extract_rule, router_crawl_task, router_rpa_script, router_data_pipeline, router_result_store, router_anti_block, router_quality_check, router_delta_sync, router_log_monitor, router_template_mgr, router_export_shard, router_export_hub, router_scheduler, router_parse_engine, router_retry_queue, router_pipeline_api]

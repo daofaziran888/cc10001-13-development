@@ -27,6 +27,10 @@ class Store:
             "proxy_assignments": [],   # 代理分配记录
             "cookie_rotations": [],    # 凭证轮换记录
             "scheduler_triggers": [],  # 调度触发记录
+            "shard_dispatches": [],    # 分片分发记录（按批次+通道+分片唯一）
+            "shard_events": [],        # 分片状态变更事件（归档幂等审计）
+            "shard_batches": [],       # 批次分发状态快照
+            "shard_packages": [],      # 已打包的完整分发文件
         }
         self._load_joint()
 
@@ -99,6 +103,10 @@ class Store:
             if int(row.get("id", 0)) == record_id:
                 return row
         return None
+
+    def joint_save(self, key: str) -> None:
+        """直接改过联合存储里的记录后，把整张表落盘。"""
+        self._save_joint(key)
 
     def joint_clear(self, key: str) -> None:
         self._joint[key] = []

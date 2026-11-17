@@ -9,6 +9,7 @@ from app.services.scheduler_engine import scheduler_engine
 from app.services.quality_auditor import quality_auditor
 from app.services.delta_tracker import delta_tracker
 from app.services.export_dispatcher import export_dispatcher
+from app.services.shard_dispatcher import shard_dispatcher
 from app.services.proxy_router import proxy_router
 from app.services.anti_block_engine import anti_block_engine
 
@@ -35,6 +36,35 @@ class CaptureSyncPayload(BaseModel):
 class DispatchBatchPayload(BaseModel):
     batch_id: int
     channel_format: str = "json"
+
+
+class ShardPreparePayload(BaseModel):
+    batch_id: int
+    channel_ids: list[int | str] | None = None
+    shard_size: int | None = None
+    strategy: str | None = None
+
+
+class ShardTransferPayload(BaseModel):
+    batch_id: int
+    channel_id: int | str
+    fail_shards: list[int] | None = None
+    interrupt_at: int | None = None
+    fail_after: int | None = None
+    fail_all: bool = False
+
+
+class ShardResumePayload(BaseModel):
+    batch_id: int
+    channel_id: int | str | None = None
+    fail_after: int | None = None
+    fail_all: bool = False
+
+
+class ShardPackagePayload(BaseModel):
+    batch_id: int
+    channel_id: int | str | None = None
+    strategy: str | None = None
 
 
 class RouteTaskPayload(BaseModel):
@@ -183,6 +213,63 @@ def get_dispatch_log(log_id: int) -> dict:
     if log is None:
         raise HTTPException(status_code=404, detail=f"分发日志 {log_id} 不存在")
     return log
+
+
+# ---------- 分片分发（可恢复续传） ----------
+
+@router.post("/dispatch/shards/prepare")
+def prepare_shards(payload: ShardPreparePayload) -> dict:
+    res = shard_dispatcher.prepare(
+        payload.batch_id, payload.channel_ids,
+        shard_size=payload.shard_size, strategy=payload.strategy)
+    if not res.get("ok"):
+        raise HTTPException(status_code=400, detail=res.get("error"))
+    return res
+
+
+@router.post("/dispatch/shards/transfer")
+def transfer_shards(payload: ShardTransferPayload) -> dict:
+    res = shard_dispatcher.transfer(
+        payload.batch_id, payload.channel_id, fail_shards=payload.fail_shards,
+        interrupt_at=payload.interrupt_at, fail_after=payload.fail_after,
+        fail_all=payload.fail_all)
+    if not res.get("ok"):
+        raise HTTPException(status_code=400, detail=res.get("error"))
+    return res
+
+
+@router.post("/dispatch/shards/resume")
+def resume_shards(payload: ShardResumePayload) -> dict:
+    res = shard_dispatcher.resume(
+        payload.batch_id, payload.channel_id,
+        fail_after=payload.fail_after, fail_all=payload.fail_all)
+    if not res.get("ok"):
+        raise HTTPException(status_code=400, detail=res.get("error"))
+    return res
+
+
+@router.post("/dispatch/shards/package")
+def package_shards(payload: ShardPackagePayload) -> dict:
+    res = shard_dispatcher.package(
+        payload.batch_id, payload.channel_id, strategy=payload.strategy)
+    if not res.get("ok"):
+        raise HTTPException(status_code=400, detail=res.get("error"))
+    return res
+
+
+@router.get("/dispatch/shards")
+def list_shards(batch_id: int | None = None, channel_id: int | None = None) -> list:
+    items, _ = shard_dispatcher.list_records(
+        batch_id=batch_id, channel_id=channel_id, page=1, size=1000000)
+    return items
+
+
+@router.get("/dispatch/shards/state/{batch_id}")
+def get_shard_state(batch_id: int) -> dict:
+    state = shard_dispatcher.get_batch_state(batch_id)
+    if state is None:
+        raise HTTPException(status_code=404, detail=f"批次 {batch_id} 未生成分片分发状态")
+    return state
 
 
 # ---------- 代理路由 ----------

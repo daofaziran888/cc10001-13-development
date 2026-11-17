@@ -76,6 +76,8 @@
       <span>共 {{ total }} 条数据分发记录</span>
       <span v-if="errorMessage" class="error-text">{{ errorMessage }}</span>
     </footer>
+
+    <ShardPanel @error="onShardError" />
   </section>
 </template>
 
@@ -83,6 +85,7 @@
 import { computed, onMounted, ref } from 'vue'
 
 import { request } from '@/api/client'
+import ShardPanel from './ShardPanel.vue'
 
 type Row = Record<string, string | number | null>
 
@@ -105,6 +108,10 @@ const stats = computed(() => [
   { label: metricNames[1], value: rows.value.filter((row) => row.status === statuses[1]).length },
   { label: metricNames[2], value: rows.value.filter((row) => row.status === statuses[statuses.length - 1]).length },
 ])
+
+function onShardError(message: string) {
+  errorMessage.value = message
+}
 
 function resetFilters() {
   filters.value = {}

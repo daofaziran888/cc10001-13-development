@@ -70,3 +70,19 @@ body { margin: 0; background: #f6f8fb; color: #1f2937; }
 .analysis-chart { display: flex; align-items: flex-end; gap: 8px; height: 160px; padding: 12px 0; }
 .analysis-bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--brand); min-width: 24px; position: relative; transition: height 0.4s; }
 .analysis-bar span { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--muted); white-space: nowrap; }
+/* 分片分发面板 */
+.shard-panel { margin-top: 28px; padding-top: 16px; border-top: 2px solid var(--border); }
+.shard-head { margin-top: 0; }
+.shard-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 12px; }
+.shard-toolbar .filter-item select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+.shard-summary { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+.shard-summary .stat-card { min-width: 160px; }
+.shard-channels { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.shard-chip { border: 1px solid var(--border); background: #fff; border-radius: 999px; padding: 4px 12px; font-size: 12px; }
+.shard-hint { font-size: 12px; color: var(--muted); }
+.shard-files { margin-top: 16px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.shard-files h4 { margin: 0 0 8px; font-size: 14px; }
+.shard-files ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.shard-files li { display: flex; gap: 12px; align-items: center; }
+.shard-file-status[data-status="已发布"] { color: #15803d; }
+.shard-file-status[data-status="暂存"] { color: #b45309; }
